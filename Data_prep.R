@@ -222,3 +222,10 @@ for (z in 1:length(exp_SED$Depth)) {
   } 
 }; rm(i, z)
 
+## change structures of variables 
+AUCexp_SED$AUC <- as.numeric(as.character(AUCexp_SED$AUC))
+
+AUCexp_SED$Animals <- revalue(AUCexp_SED$Animals, c("TZ" = "Animals", "BZ" = "Without animals"))
+AUCexp_SED$Mixed <- revalue(AUCexp_SED$Mixed, c("TM" = "Mixed", "NM" = "Not mixed"))
+
+
