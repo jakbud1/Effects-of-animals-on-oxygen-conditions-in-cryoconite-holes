@@ -53,6 +53,7 @@ hist(residuals(m_lyr_fld_2.1, type = "pearson"))
 ### Experiment - Forni -----------------------------------------------
 AUCexp_FOR <- subset(AUCexp_SED, Glacier == "Forni")
 
+AUCexp_FOR$AUC <- as.numeric(as.character(AUCexp_FOR$AUC))
 ## Models
 m_for_exp_0 <- glmmTMB(AUC ~ 1, 
                        data = AUCexp_FOR); summary(m_for_exp_0)
@@ -65,6 +66,7 @@ plot(residuals(m_for_exp_1) ~ fitted(m_for_exp_1))
 ### Experiment - Longyearbreen ---------------------------------------
 AUCexp_LYR <- subset(AUCexp_SED, Glacier == "Longyearbreen")
 
+AUCexp_LYR$AUC <- as.numeric(as.character(AUCexp_LYR$AUC))
 # Modelling
 m_lyr_exp_0 <- glmmTMB(AUC ~ 1, data = AUCexp_LYR); summary(m_lyr_exp_0)
 m_lyr_exp_1 <- glmmTMB(AUC ~ Mixed * Animals, 

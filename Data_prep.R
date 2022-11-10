@@ -3,6 +3,7 @@
 library(readxl)
 library(dplyr)
 library(stats)
+library(plyr)
 
 ## Merge comments function
 merge_comments <- function(dataInput, dataNames){
@@ -171,12 +172,23 @@ exp_SED <- aggregate(exp_SED$Oxygen ~ exp_SED$Depth + exp_SED$Glacier +
                             FUN = mean)
 colnames(exp_SED) <- c("Depth","Glacier","BeakerNum","Animals","Mixed","Name","Oxygen")
 
+exp_SED$Animals <- as.factor(exp_SED$Animals)
+levels(exp_SED$Animals) <- c("Without animals", "Animals")
+
+exp_SED$Mixed <- as.factor(exp_SED$Mixed)
+levels(exp_SED$Mixed) <- c("Not mixed", "Mixed")
+
 # water
 exp_WAT <- aggregate(exp_WAT$Oxygen ~ exp_WAT$Depth + exp_WAT$Glacier + 
                           exp_WAT$BeakerNum + exp_WAT$Animals + exp_WAT$Mixed + 
                           exp_WAT$Name, 
                         FUN = mean)
 colnames(exp_WAT) <- c("Depth","Glacier","BeakerNum","Animals","Mixed","Name","Oxygen")
+
+exp_WAT$Animals <- as.factor(exp_WAT$Animals)
+levels(exp_WAT$Animals) <- c("Without animals", "Animals")
+exp_WAT$Mixed <- as.factor(exp_WAT$Mixed)
+levels(exp_WAT$Mixed) <- c("Not mixed", "Mixed")
 
 ### Experiment - calculate the calculus for each profile ------------------------
 ## Sediment
@@ -202,6 +214,7 @@ Int_exp_SED <- lapply(exp_SEDL,
 # extracting the data from the list
 AUCl <- numeric(length(exp_SEDL))
 leng <- length(exp_SEDL)
+
 for (i in 1:leng) {
   AUCl[i] <- as.numeric(Int_exp_SED[[i]][1])
 };  rm(i, leng)
@@ -216,16 +229,15 @@ for (z in 1:length(exp_SED$Depth)) {
     if (AUCexp_SED[i,2] == exp_SED[z,6]) {
       AUCexp_SED$Glacier[i] <- exp_SED[z,2] 
       AUCexp_SED$BeakerNum[i] <- exp_SED[z,3]
-      AUCexp_SED$Animals[i] <- exp_SED[z,4]
-      AUCexp_SED$Mixed[i] <- exp_SED[z,5]
+      AUCexp_SED$Animals[i] <- as.character(exp_SED[z,4])
+      AUCexp_SED$Mixed[i] <- as.character(exp_SED[z,5])
     }
   } 
 }; rm(i, z)
 
 ## change structures of variables 
-AUCexp_SED$AUC <- as.numeric(as.character(AUCexp_SED$AUC))
+AUCexp_SED$AUC <- as.factor(AUCexp_SED$AUC)
 
-AUCexp_SED$Animals <- revalue(AUCexp_SED$Animals, c("TZ" = "Animals", "BZ" = "Without animals"))
-AUCexp_SED$Mixed <- revalue(AUCexp_SED$Mixed, c("TM" = "Mixed", "NM" = "Not mixed"))
+
 
 

@@ -31,7 +31,7 @@ anova(m_for_exp_0, m_for_exp_1)
 summary(m_lyr_exp_1)
 anova(m_lyr_exp_0, m_lyr_exp_1, test = "Chisq")
 
-### Single plots of model --------------------------------------
+### Single plots of model -------------------------------------- Tutaj koniec
 ## Field
 # Forni
 # Lyr
@@ -75,7 +75,7 @@ dev.off()
 ## Forni experiment
 AUCexp_FOR$Animals <- revalue(AUCexp_FOR$Animals, c("TZ" = "Animals", "BZ" = "Without animals"))
 
-## Visualisation of profiles
+# Visualisation of profiles
 EKS_AN_FOR <- ggplot(data = exp_SED, aes(y = Oxygen, x = Depth, color = Animals)) + 
   geom_smooth() + 
   scale_color_discrete(name = "", labels = c("Animals", "Without animals")) + 
@@ -96,9 +96,7 @@ dfSEDIMENTexp2LYR <- subset(dfSEDIMENTexp2, Glacier != "Forni")
 dfSEDIMENTexp2LYR$Animals <- revalue(dfSEDIMENTexp2LYR$Animals, c("TZ" = "Animals", "BZ" = "Without animals"))
 dfSEDIMENTexp2LYR$Mixed <- revalue(dfSEDIMENTexp2LYR$Mixed, c("TM" = "Mixed", "NM" = "Not mixed"))
 
-
-
-## Visualisation raw data
+# Visualisation raw data
 EKS_AN <- ggplot(data = dfSEDIMENTexp2LYR, aes(y = Oxygen, x = Depth, color = Animals)) + 
   geom_smooth() + 
   facet_grid(. ~ Mixed) + 
