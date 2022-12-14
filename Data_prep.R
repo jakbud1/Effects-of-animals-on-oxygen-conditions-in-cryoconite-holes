@@ -28,7 +28,7 @@ temp <- list.files(pattern = "*.xlsx")
 myfiles <- lapply(temp, read_xlsx)
 df_for_fld <- do.call(rbind.data.frame, myfiles); rm(myfiles, temp)
 
-setwd(wd); rm(wd)
+setwd(wd)
 
 ## select variable
 df_for_fld <- df_for_fld[,c(1,2,8)]
@@ -47,8 +47,8 @@ for (i in 1:nrow(df_mean)){
 }; rm(i)
 
 # Check observations
-ggplot(df_mean, aes(x = depth, y = oxygen_concentration_ul_L)) +  
-  facet_wrap(. ~ profile_ID) + geom_line() + geom_jitter()
+# ggplot(df_mean, aes(x = depth, y = oxygen_concentration_ul_L)) +  
+#   facet_wrap(. ~ profile_ID) + geom_line() + geom_jitter()
 
 df_mean <- df_mean[-217,]# measurement error, after lack of oxygen, sudden pick.
 
@@ -59,7 +59,7 @@ OUT_for <- subset(df_mean, oxygen_concentration_ul_L < 350)
 ggplot(OUT_for, aes(x = depth, y = oxygen_concentration_ul_L)) +  
   facet_wrap(. ~ profile_ID) + geom_line() + geom_jitter()
 
-## Cut tail of measurements, leave only 3 top measurements and calculate the mean.
+## Cut tail of measurements, leave only 3 top measurements and calculate the mean
 df_mean$profile_ID <- as.factor(df_mean$profile_ID)
 
 OUT_for2 <- OUT_for %>% 
@@ -83,13 +83,49 @@ df_tar$krio_ID <- as.factor(df_tar$krio_ID)
 FOR_fld_OUT <- merge(df_tar, OUT_mean, by = "prof_ID")
 FOR_fld_OUT$tar_count <- FOR_fld_OUT$deformed_specimens + FOR_fld_OUT$accurate_specimens
 
-df_prof_forni_all <- df_mean
+df_prof_for_all <- df_mean
 rm(df_for_fld, df_mean, df_tar, OUT_mean, OUT_for2)
 
 ### Field - Longyearbreen ---------------------------------------
+## Double measurements
 LYR_fld_OUT <- readxl::read_xlsx("Input/Lyr/LYR_21_oxygen.xlsx")
 
+## Profiles
+setwd("Input/Lyr/profile/")
+temp <- list.files(pattern = "*.xlsx")
+myfiles <- lapply(temp, read_xlsx)
+df_lyr_fld <- do.call(rbind.data.frame, myfiles); rm(myfiles, temp)
+
+
+## select variable
+df_lyr_fld <- df_lyr_fld[,c(1,2,8)]
+colnames(df_lyr_fld) <- c("profile_ID", "depth", "oxygen_concentration_ul_L")
+
+## aggregate
+df_mean <- aggregate(df_lyr_fld$oxygen_concentration_ul_L ~ df_lyr_fld$profile_ID + df_lyr_fld$depth, 
+                     FUN = mean)
+colnames(df_mean) <- c("profile_ID", "depth", "oxygen_concentration_ul_L")
+
+## Subset negative values to 0
+for (i in 1:nrow(df_mean)){
+  if (df_mean$oxygen_concentration_ul_L[i] < 0){
+    df_mean$oxygen_concentration_ul_L[i] <- 0
+  }
+}; rm(i)
+
+## Check observations
+# ggplot(df_mean, aes(x = depth, y = oxygen_concentration_ul_L)) +  
+#   facet_wrap(. ~ profile_ID) + geom_line() + geom_jitter()
+
+## calculate standard error at each depth 
+df_prof_lyr_mean <- aggregate(df_mean$oxygen_concentration_ul_L ~ df_mean$depth, FUN = mean)
+df_prof_lyr_mean$SE <- aggregate(df_mean$oxygen_concentration_ul_L ~ df_mean$depth, FUN = sd)[2]/
+  sqrt(aggregate(df_mean$oxygen_concentration_ul_L ~ df_mean$depth, FUN = length)[2])
+colnames(df_prof_lyr_mean) <- c("depth", "mean_oxygen", "SE")
+
+df_prof_lyr_all <- df_mean; rm(df_mean)
 ### Experiment - Forni (Sediment)  -----------------------------------------------
+setwd(wd)
 ### Sediment data
 FOR_OS <- lapply(excel_sheets("Input/Experiment/Tlen_FOR_OSAD.xlsx"), 
                  read_excel, path = "Input/Experiment/Tlen_FOR_OSAD.xlsx")
@@ -245,7 +281,3 @@ for (z in 1:length(exp_SED$Depth)) {
 
 ## change structures of variables 
 AUCexp_SED$AUC <- as.factor(AUCexp_SED$AUC)
-
-
-
-
