@@ -5,6 +5,7 @@ source("Models.R")
 library(ggplot2)
 library(visreg)
 library(data.table)
+library(plotrix)
 
 ### Models outputs --------------------------------------------
 ## Field
@@ -31,103 +32,112 @@ anova(m_for_exp_0, m_for_exp_1)
 summary(m_lyr_exp_1)
 anova(m_lyr_exp_0, m_lyr_exp_1, test = "Chisq")
 
-### Single plots of model -------------------------------------- Tutaj koniec
+### Single plots of model --------------------------------------
+## Field
+# Forni counts
+p1 <- visreg(m_for_fld_1, "tar_count" ,
+             line.par = list(col = 'black'), gg = TRUE)
+p1 + theme_classic() + geom_point(color = "black")
+
+# Forni biomass
+p2 <- visreg(m_for_fld_2, "total_biomass",
+             line.par = list(col = "black"), gg = TRUE)
+p2 + theme_classic() + geom_point(color = "black")
+
+# Lyr sediment
+p3.1 <- visreg(m_lyr_fld_1.1, "ani_den", "Animal", 
+             plot = FALSE, overlay = TRUE, partial = TRUE)
+
+p3.2 <- ggplot(p3.1$fit, aes(ani_den, visregFit, linetype = factor(Animal), fill = factor(Animal))) +
+  geom_ribbon(aes(ymin = visregLwr, ymax = visregUpr), alpha = 0.5, 
+              colour = "grey50", linetype = 1, size = 0.3) +
+  geom_line(size = 1) + theme_classic() + xlab(expression(paste("Animals density (ind. ml"^-1, ")"))) + 
+  ylab(expression(paste("Oxygen ( ",mu,"mol L"^-1, ")"))) + 
+  geom_point(data = p3.1$res, aes(ani_den, visregRes, color = factor(Animal)), size = 2, alpha = 0.5) + 
+  scale_fill_grey(start = 0.2, end = 0.8) + ggtitle("Sediment surface") + 
+  scale_color_manual(values = c("Darkblue","darkred")) +
+  labs(linetype = "Animal type", fill = "Animal type", color = "Animal type") + ylim(c(300,450)) + 
+  theme(plot.title = element_text(hjust = 0.5)); p3.2
+
+# Lyr water
+p4.1 <- visreg(m_lyr_fld_2.1, "ani_den", "Animal", 
+               plot = FALSE, overlay = TRUE, partial = TRUE)
+
+p4.2 <- ggplot(p4.1$fit, aes(ani_den, visregFit, linetype = factor(Animal), fill = factor(Animal))) +
+  geom_ribbon(aes(ymin = visregLwr, ymax = visregUpr), alpha = 0.5, 
+              colour = "grey50", linetype = 1, size = 0.3) +
+  geom_line(size = 1) + theme_classic() + xlab(expression(paste("Animals density (ind. ml"^-1, ")"))) + 
+  ylab(expression(paste("Oxygen ( ",mu,"mol L"^-1, ")"))) + 
+  geom_point(data = p4.1$res, aes(ani_den, visregRes, color = factor(Animal)), size = 2, alpha = 0.5) + 
+  scale_fill_grey(start = 0.2, end = 0.8) + 
+  scale_color_manual(values = c("Darkblue","darkred")) + ggtitle("Water above the sediment") + 
+  labs(linetype = "Animal type", fill = "Animal type", color = "Animal type") + ylim(c(300,450)) +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none"); p4.2
+
+## Experiment
+# Forni
+p5.1 <- visreg(m_for_exp_1, "Animals", 
+               plot = TRUE, overlay = TRUE, partial = TRUE)
+# Lyr
+p6.1 <- visreg(m_lyr_exp_1, "Animals", "Mixed" ,  
+               plot = TRUE, overlay = FALSE, partial = TRUE)
+
+### Profiles -------------------------------------------------- BRAKUJĄCE WYKRESY, należy przygotować jeszcze dane 
 ## Field
 # Forni
 # Lyr
+
 ## Experiment
 # Forni
-# Lyr
+prof_FORexp <- data.table(subset(exp_SED, Glacier == "Forni"))
 
-### Profiles --------------------------------------------------
+prof_out_FORexp <- prof_FORexp[, .("MeanOxygen" = mean(Oxygen), 
+                            "se" = std.error(Oxygen)), 
+                        by = c("Animals", "Depth")]; rm(prof_FORexp)
+
+exp_prof_FOR <- ggplot(data = prof_out_FORexp, aes(x = MeanOxygen, y = Depth, color = Animals)) +
+  geom_point() + scale_y_reverse() + scale_x_reverse() + 
+  facet_grid(. ~ Animals) + geom_path(data = prof_out_FORexp[c(1:30),], aes(color = Animals)) +
+  geom_hline(yintercept = 3000, linetype = "dashed", color = "black", size = 1.1) + 
+  geom_errorbarh(aes(xmin = MeanOxygen - se, xmax = MeanOxygen + se),
+                 position = position_dodge(.9)) + ylab(expression(paste("Depth (",mu,"m",")"))) + 
+  xlab(expression(paste("Oxygen (",mu,"mol L"^-1, ")"))) +
+  theme_classic() + theme(plot.title = element_text(size = 15, hjust = 0.5, face = "bold"), 
+                          axis.title.x = element_text(size = 15),
+                          axis.title.y = element_text(size = 14,vjust = 2),
+                          axis.text.x = element_text(size = 13),
+                          axis.text.y = element_text(size = 13),
+                          strip.text.x = element_text(size = 12),
+                          strip.text.y = element_text(size = 12),
+                          plot.margin = unit(c(1.5,1.5,1.5,1.5), "lines")) +
+  ggtitle("Forni - oxygen profiles") + scale_color_manual(values = c("grey","darkgreen")) + 
+  labs(color = "Treatment"); exp_prof_FOR
+
+# Lyr 
+prof_LYRexp <- data.table(subset(exp_SED, Glacier == "Longyearbreen"))
+
+prof_out_LYRexp <- prof_LYRexp[, .("MeanOxygen" = mean(Oxygen), 
+                                   "se" = std.error(Oxygen)), 
+                               by = c("Mixed", "Depth", "Animals")]; rm(prof_LYRexp)
+
+exp_prof_LYR <-  ggplot(data = prof_out_LYRexp, aes(x = MeanOxygen, y = Depth, color = Animals)) +
+  geom_point() + scale_y_reverse() + scale_x_reverse() + 
+  facet_grid(Mixed ~ Animals) + geom_path(data = prof_out_LYRexp[c(1:60),], aes(color = Animals)) +
+  geom_hline(yintercept = 3000, linetype = "dashed", color = "black", size = 1.1) + 
+  geom_errorbarh(aes(xmin = MeanOxygen - se, xmax = MeanOxygen + se),
+                 position = position_dodge(.9)) + ylab(expression(paste("Depth (",mu,"m",")"))) + 
+  xlab(expression(paste("Oxygen (",mu,"mol L"^-1, ")"))) +
+  theme_classic() + theme(plot.title = element_text(size = 15, hjust = 0.5, face = "bold"), 
+                           axis.title.x = element_text(size = 15),
+                           axis.title.y = element_text(size = 14,vjust = 2),
+                           axis.text.x = element_text(size = 13),
+                           axis.text.y = element_text(size = 13),
+                           strip.text.x = element_text(size = 12),
+                           strip.text.y = element_text(size = 12),
+                           plot.margin = unit(c(1.5,1.5,1.5,1.5), "lines")) +
+  ggtitle("Longyearbreen - oxygen profiles") + scale_color_manual(values = c("grey","darkgreen")) + 
+  labs(color = "Treatment"); exp_prof_LYR
+
 
 ### Arranged plots --------------------------------------------
-
-
-## Wizualizacja RAW - LYR in field 
-ox1.s <- ggplot(ox, aes(x = ani_den, y = sed_oxygen)) + 
-  geom_point() + geom_smooth(method = "lm") + facet_wrap(.~ ani_type, scales = "free"); ox1.s
-
-ox1.w <- ggplot(ox, aes(x = ani_den, y = water_oxygen)) + 
-  geom_point() + geom_smooth(method = "lm") + facet_wrap(.~ ani_type, scales = "free"); ox1.w
-
-## LYR - modele field (osad)
-vv1 <- visreg(m_lyr_fld_1.1, "ani_den", by = "Animal",overlay = TRUE, gg = TRUE) + 
-  xlab(expression(paste("Density of animals [ind. ml"^"-1","]"))) +  ylab(expression(paste("Oxygen (",mu,"mol L"^"-1",")"))) +
-  ggtitle("Surface of sediment") + theme_bw(); vv1
-anova(m_lyr_fld_1.0, m_lyr_fld_1.1, test = "Chisq")
-
-png("Graphs/Tlen_a_zwierzeta_teren_osad.png", width = 1200, height = 800, units = "px", res = 200)
-vv1
-dev.off()
-
-## LYR - modele field (woda)
-vv2 <- visreg(mw2.1, "ani_den", by = "Animal", overlay = TRUE, gg = TRUE) + 
-  xlab(expression(paste("Density of animals [ind. ml"^"-1","]"))) +  ylab(expression(paste("Oxygen (",mu,"mol L"^"-1",")"))) + 
-  ggtitle("Above water") + theme_bw() ; vv2
-anova(mw2.0, mw2.1, test = "Chisq")
-
-png("Graphs/Tlen_a_zwierzeta_teren_woda.png", width = 1200, height = 800, units = "px", res = 200)
-vv2
-dev.off()
-
-### Experiment Visualization
-## Forni experiment
-AUCexp_FOR$Animals <- revalue(AUCexp_FOR$Animals, c("TZ" = "Animals", "BZ" = "Without animals"))
-
-# Visualisation of profiles
-EKS_AN_FOR <- ggplot(data = exp_SED, aes(y = Oxygen, x = Depth, color = Animals)) + 
-  geom_smooth() + 
-  scale_color_discrete(name = "", labels = c("Animals", "Without animals")) + 
-  xlab(expression(paste("Depth (",mu,"m",")"))) + 
-  ylab(expression(paste("Oxygen (",mu,"mol L"^"-1",")"))) +
-  theme_bw() + theme(plot.title = element_text(size = 16, hjust = 0.5, face = "bold"), 
-                     axis.title.x = element_text(size = 15),
-                     axis.title.y = element_text(size = 15,vjust = 2),
-                     axis.text.x = element_text(size = 13),
-                     axis.text.y = element_text(size = 13),
-                     strip.text.x = element_text(size = 12),
-                     strip.text.y = element_text(size = 12)) +  
-  ggtitle("Forni_mixed_lab_oxygenProfiles"); EKS_AN_FOR
-
-## Lyr experiment 
-dfSEDIMENTexp2LYR <- subset(dfSEDIMENTexp2, Glacier != "Forni")
-
-dfSEDIMENTexp2LYR$Animals <- revalue(dfSEDIMENTexp2LYR$Animals, c("TZ" = "Animals", "BZ" = "Without animals"))
-dfSEDIMENTexp2LYR$Mixed <- revalue(dfSEDIMENTexp2LYR$Mixed, c("TM" = "Mixed", "NM" = "Not mixed"))
-
-# Visualisation raw data
-EKS_AN <- ggplot(data = dfSEDIMENTexp2LYR, aes(y = Oxygen, x = Depth, color = Animals)) + 
-  geom_smooth() + 
-  facet_grid(. ~ Mixed) + 
-  scale_color_discrete(name = "", labels = c("Animals", "Without animals")) + 
-  xlab(expression(paste("Depth (",mu,"m",")"))) + 
-  ylab(expression(paste("Oxygen (",mu,"mol L"^"-1",")"))) +
-  theme_bw() + theme(plot.title = element_text(size = 16, hjust = 0.5, face = "bold"), 
-                     axis.title.x = element_text(size = 15),
-                     axis.title.y = element_text(size = 15,vjust = 2),
-                     axis.text.x = element_text(size = 13),
-                     axis.text.y = element_text(size = 13),
-                     strip.text.x = element_text(size = 12),
-                     strip.text.y = element_text(size = 12)) + geom_point(alpha = 0.3); EKS_AN
-
-png("Graphs/Tlen_a_zwierzeta.png", width = 1200, height = 800, units = "px", res = 200)
-EKS_AN
-dev.off()
-
-## visualisation models 
-# Model visualisation
-AUCVIS <- visreg(m_lyr_exp_1, "Animals", "Mixed", gg = TRUE) + 
-  ylab(expression(paste("Oxygen (",mu,"mol)"))) +
-  xlab("") + 
-  theme_bw() + theme(plot.title = element_text(size = 16, hjust = 0.5, face = "bold"), 
-                     axis.title.x = element_text(size = 15),
-                     axis.title.y = element_text(size = 15,vjust = 2),
-                     axis.text.x = element_text(size = 13),
-                     axis.text.y = element_text(size = 13),
-                     strip.text.x = element_text(size = 12),
-                     strip.text.y = element_text(size = 12)); AUCVIS 
-
-png("Graphs/Tlen_a_zwierzeta2.png", width = 1200, height = 800, units = "px", res = 200)
-AUCVIS
-dev.off()

@@ -4,6 +4,7 @@ library(readxl)
 library(dplyr)
 library(stats)
 library(plyr)
+library(ggplot2)
 
 ## Merge comments function
 merge_comments <- function(dataInput, dataNames){
@@ -68,6 +69,12 @@ OUT_for2 <- OUT_for %>%
 OUT_mean <- aggregate(OUT_for2$oxygen_concentration_ul_L ~ OUT_for2$profile_ID, FUN = mean)
 colnames(OUT_mean) <- c("prof_ID", "mean_oxygen")
 
+## calculate standard error at each depth 
+df_prof_for_mean <- aggregate(df_mean$oxygen_concentration_ul_L ~ df_mean$depth, FUN = mean)
+df_prof_for_mean$SE <- aggregate(df_mean$oxygen_concentration_ul_L ~ df_mean$depth, FUN = sd)[2]/
+  sqrt(aggregate(df_mean$oxygen_concentration_ul_L ~ df_mean$depth, FUN = length)[2])
+colnames(df_prof_for_mean) <- c("depth", "mean_oxygen", "SE")
+
 ## Add tardigrada data
 df_tar <- read_xlsx("Input/Forni/FOR_21_Oxygen.xlsx")
 df_tar$krio_ID <- as.factor(df_tar$krio_ID)
@@ -76,6 +83,7 @@ df_tar$krio_ID <- as.factor(df_tar$krio_ID)
 FOR_fld_OUT <- merge(df_tar, OUT_mean, by = "prof_ID")
 FOR_fld_OUT$tar_count <- FOR_fld_OUT$deformed_specimens + FOR_fld_OUT$accurate_specimens
 
+df_prof_forni_all <- df_mean
 rm(df_for_fld, df_mean, df_tar, OUT_mean, OUT_for2)
 
 ### Field - Longyearbreen ---------------------------------------
