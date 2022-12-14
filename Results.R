@@ -20,7 +20,7 @@ anova(m_for_fld_0, m_for_fld_2)
 summary(m_lyr_fld_1.1)
 anova(m_lyr_fld_1.0, m_lyr_fld_1.1)
 
-# Lyr water -> Skoro także w wodzie tzn. ze nie jest to efekt bioturbacji.
+# Lyr water 
 summary(m_lyr_fld_1.1)
 anova(m_lyr_fld_1.0, m_lyr_fld_1.1)
 
@@ -83,10 +83,39 @@ p5.1 <- visreg(m_for_exp_1, "Animals",
 p6.1 <- visreg(m_lyr_exp_1, "Animals", "Mixed" ,  
                plot = TRUE, overlay = FALSE, partial = TRUE)
 
-### Profiles -------------------------------------------------- BRAKUJĄCE WYKRESY, należy przygotować jeszcze dane 
+### Profiles -------------------------------------------------- 
 ## Field
 # Forni
+fld_prof_FOR <- ggplot(data = df_prof_for_all, 
+                       aes(x = oxygen_concentration_ul_L, y = depth)) +
+  geom_point() + scale_y_reverse() + scale_x_reverse() + 
+  facet_wrap(. ~ profile_ID, scale = "free") + geom_line() +
+  xlab(expression(paste("Oxygen (",mu,"mol L"^-1, ")"))) +
+  theme_classic() + theme(plot.title = element_text(size = 15, hjust = 0.5, face = "bold"), 
+                          axis.title.x = element_text(size = 15),
+                          axis.title.y = element_text(size = 14,vjust = 2),
+                          axis.text.x = element_text(size = 13),
+                          axis.text.y = element_text(size = 13),
+                          strip.text.x = element_text(size = 12),
+                          strip.text.y = element_text(size = 12),
+                          plot.margin = unit(c(1.5,1.5,1.5,1.5), "lines")) +
+  ggtitle("Forni - oxygen profiles field"); fld_prof_FOR
+
 # Lyr
+fld_prof_lyr <- ggplot(data = df_prof_lyr_all, 
+                       aes(x = oxygen_concentration_ul_L, y = depth)) +
+  geom_point() + scale_y_reverse() + scale_x_reverse() + 
+  facet_wrap(. ~ profile_ID, scales = "free_y") + geom_line() +
+  xlab(expression(paste("Oxygen (",mu,"mol L"^-1, ")"))) +
+  theme_classic() + theme(plot.title = element_text(size = 15, hjust = 0.5, face = "bold"), 
+                          axis.title.x = element_text(size = 15),
+                          axis.title.y = element_text(size = 14,vjust = 2),
+                          axis.text.x = element_text(size = 13),
+                          axis.text.y = element_text(size = 13),
+                          strip.text.x = element_text(size = 12),
+                          strip.text.y = element_text(size = 12),
+                          plot.margin = unit(c(1.5,1.5,1.5,1.5), "lines")) +
+  ggtitle("Longyear - oxygen profiles field"); fld_prof_lyr
 
 ## Experiment
 # Forni

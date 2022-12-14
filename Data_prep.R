@@ -71,8 +71,8 @@ colnames(OUT_mean) <- c("prof_ID", "mean_oxygen")
 
 ## calculate standard error at each depth 
 df_prof_for_mean <- aggregate(df_mean$oxygen_concentration_ul_L ~ df_mean$depth, FUN = mean)
-df_prof_for_mean$SE <- aggregate(df_mean$oxygen_concentration_ul_L ~ df_mean$depth, FUN = sd)[2]/
-  sqrt(aggregate(df_mean$oxygen_concentration_ul_L ~ df_mean$depth, FUN = length)[2])
+df_prof_for_mean$SE <- unlist(aggregate(df_mean$oxygen_concentration_ul_L ~ df_mean$depth, FUN = sd)[2]/
+  sqrt(aggregate(df_mean$oxygen_concentration_ul_L ~ df_mean$depth, FUN = length)[2]))
 colnames(df_prof_for_mean) <- c("depth", "mean_oxygen", "SE")
 
 ## Add tardigrada data
@@ -119,8 +119,8 @@ for (i in 1:nrow(df_mean)){
 
 ## calculate standard error at each depth 
 df_prof_lyr_mean <- aggregate(df_mean$oxygen_concentration_ul_L ~ df_mean$depth, FUN = mean)
-df_prof_lyr_mean$SE <- aggregate(df_mean$oxygen_concentration_ul_L ~ df_mean$depth, FUN = sd)[2]/
-  sqrt(aggregate(df_mean$oxygen_concentration_ul_L ~ df_mean$depth, FUN = length)[2])
+df_prof_lyr_mean$SE <- unlist(aggregate(df_mean$oxygen_concentration_ul_L ~ df_mean$depth, FUN = sd)[2]/
+  sqrt(aggregate(df_mean$oxygen_concentration_ul_L ~ df_mean$depth, FUN = length)[2]))
 colnames(df_prof_lyr_mean) <- c("depth", "mean_oxygen", "SE")
 
 df_prof_lyr_all <- df_mean; rm(df_mean)
