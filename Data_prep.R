@@ -124,9 +124,10 @@ df_prof_lyr_mean$SE <- unlist(aggregate(df_mean$oxygen_concentration_ul_L ~ df_m
 colnames(df_prof_lyr_mean) <- c("depth", "mean_oxygen", "SE")
 
 df_prof_lyr_all <- df_mean; rm(df_mean)
+
 ### Experiment - Forni (Sediment)  -----------------------------------------------
 setwd(wd)
-### Sediment data
+
 FOR_OS <- lapply(excel_sheets("Input/Experiment/Tlen_FOR_OSAD.xlsx"), 
                  read_excel, path = "Input/Experiment/Tlen_FOR_OSAD.xlsx")
 FOR_OS2 <- bind_rows(FOR_OS[1:10])
@@ -145,24 +146,7 @@ merge_comments(FOR_OS2, FOR_OS_NAMES)
 rm(FOR_OS2, FOR_OS_NAMES)
 FOR_exp_SED <- newDF; rm(newDF) 
 
-### Experiment - Forni (Water)  -----------------------------------------------
-FOR_WO <- lapply(excel_sheets("Input/Experiment/Tlen_FOR_WODA.xlsx"), 
-                 read_excel, path = "Input/Experiment/Tlen_FOR_WODA.xlsx")
-FOR_WO2 <- bind_rows(FOR_WO[1:10])
-FOR_WO_NAMES <- as.data.frame(FOR_WO[13])[-1,3]; rm(FOR_WO)
-
-FOR_WO2 <- FOR_WO2[,c(1,2,7,8,6)]
-FOR_WO2$glacier <- rep("Forni", length(FOR_WO2$`Profile name`))
-
-FOR_WO2$abv_name <- as.character(NA)
-FOR_WO2$mixed <- as.character(NA)
-FOR_WO2$animals <- as.character(NA)
-FOR_WO2$beakerNum <- as.character(NA)
-
-merge_comments(FOR_WO2, FOR_WO_NAMES); rm(FOR_WO2, FOR_WO_NAMES)
-FOR_exp_WAT <- newDF; rm(newDF)
-
-### Experiment - Longyearbreen (Sediment)  -----------------------------------------------
+### Experiment - Longyearbreen -----------------------------------------------
 LYR_OS <- lapply(excel_sheets("Input/Experiment/Tlen_LYR_OSAD.xlsx"), 
                  read_excel, path = "Input/Experiment/tlen_LYR_OSAD.xlsx")
 LYR_OS2 <- bind_rows(LYR_OS[1:20])
@@ -178,30 +162,6 @@ LYR_OS2$beakerNum <- as.character(NA)
 
 merge_comments(LYR_OS2, LYR_OS_NAMES); rm(LYR_OS2, LYR_OS_NAMES)
 LYR_exp_SED <- newDF; rm(newDF)
-
-### Experiment - Longyearbreen (Water)  -----------------------------------------------
-LYR_WO <- lapply(excel_sheets("Input/Experiment/Tlen_LYR_WODA.xlsx"), 
-                 read_excel, path = "Input/Experiment/Tlen_LYR_WODA.xlsx")
-LYR_WO2 <- bind_rows(LYR_WO[1:20])
-LYR_WO_NAMES <- as.data.frame(LYR_WO[23])[-1,3]; rm(LYR_WO)
-
-LYR_WO2 <- LYR_WO2[,c(1,2,7,8,6)]
-LYR_WO2$glacier <- rep("Longyearbreen", length(LYR_WO2$`Profile name`))
-
-LYR_WO2$abv_name <- as.character(NA)
-LYR_WO2$mixed <- as.character(NA)
-LYR_WO2$animals <- as.character(NA)
-LYR_WO2$beakerNum <- as.character(NA)
-
-merge_comments(LYR_WO2, LYR_WO_NAMES); rm(LYR_WO2, LYR_WO_NAMES)
-LYR_exp_WAT <- newDF; rm(newDF)
-
-### Experiment - process experimental data ---------------------------------------------------
-## Merge dfs
-# water dfs
-exp_WAT <- rbind(FOR_exp_WAT, LYR_exp_WAT); rm(FOR_exp_WAT, LYR_exp_WAT) 
-exp_WAT <- exp_WAT[,c(2,4,6:10)]
-names(exp_WAT) <- c("Depth", "Oxygen", "Glacier", "Name", "Mixed", "Animals", "BeakerNum")
 
 # sediment dfs 
 exp_SED <- rbind(FOR_exp_SED, LYR_exp_SED); rm(FOR_exp_SED, LYR_exp_SED)
@@ -222,21 +182,7 @@ levels(exp_SED$Animals) <- c("Without animals", "Animals")
 exp_SED$Mixed <- as.factor(exp_SED$Mixed)
 levels(exp_SED$Mixed) <- c("Not mixed", "Mixed")
 
-# water
-exp_WAT <- aggregate(exp_WAT$Oxygen ~ exp_WAT$Depth + exp_WAT$Glacier + 
-                          exp_WAT$BeakerNum + exp_WAT$Animals + exp_WAT$Mixed + 
-                          exp_WAT$Name, 
-                        FUN = mean)
-colnames(exp_WAT) <- c("Depth","Glacier","BeakerNum","Animals","Mixed","Name","Oxygen")
-
-exp_WAT$Animals <- as.factor(exp_WAT$Animals)
-levels(exp_WAT$Animals) <- c("Without animals", "Animals")
-exp_WAT$Mixed <- as.factor(exp_WAT$Mixed)
-levels(exp_WAT$Mixed) <- c("Not mixed", "Mixed")
-
 ### Experiment - calculate the calculus for each profile ------------------------
-## Sediment
-# set negative value of oxygen as 0 to avoid negative integration. 
 for (e in 1:length(exp_SED$Name)) {
   if (exp_SED[e, 7] < 0) {
     exp_SED[e, 7] <- 0

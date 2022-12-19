@@ -7,42 +7,49 @@ library(visreg)
 library(data.table)
 library(plotrix)
 
+### Descriptive data
+## Field
+mean(FOR_fld_OUT$animal_dens)
+
+mean(LYR_fld_OUT$ani_den)
+mean(subset(LYR_fld_OUT, ani_type == "rotifera")$ani_den)
+mean(subset(LYR_fld_OUT, ani_type == "tardigrada")$ani_den)
+
+mean(LYR_fld_OUT$OM)
+mean(FOR_fld_OUT$OM)
 ### Models outputs --------------------------------------------
 ## Field
-# Forni counts
+# Forni (density)
 summary(m_for_fld_1)
-anova(m_for_fld_0, m_for_fld_1)
-# Forni biomass
-summary(m_for_fld_2)
-anova(m_for_fld_0, m_for_fld_2)
+anova(m_for_fld_0, m_for_fld_1, test = "Chisq")
 
-# Lyr sediment
+# Lyr sediment (density)
 summary(m_lyr_fld_1.1)
-anova(m_lyr_fld_1.0, m_lyr_fld_1.1)
+anova(m_lyr_fld_1.0, m_lyr_fld_1.1, test = "Chisq")
 
-# Lyr water 
-summary(m_lyr_fld_1.1)
-anova(m_lyr_fld_1.0, m_lyr_fld_1.1)
+# Lyr water (density)
+summary(m_lyr_fld_2.1)
+anova(m_lyr_fld_2.0, m_lyr_fld_2.1, test = "Chisq")
 
 ## Experiment
 # Forni
 summary(m_for_exp_1)
-anova(m_for_exp_0, m_for_exp_1)
+anova(m_for_exp_0, m_for_exp_1, test = "Chisq")
+
 # Lyr
 summary(m_lyr_exp_1)
 anova(m_lyr_exp_0, m_lyr_exp_1, test = "Chisq")
 
+summary(m_lyr_exp_2)
+anova(m_lyr_exp_0, m_lyr_exp_2, test = "Chisq")
+
+
 ### Single plots of model --------------------------------------
 ## Field
 # Forni counts
-p1 <- visreg(m_for_fld_1, "tar_count" ,
+p1 <- visreg(m_for_fld_1, "animal_dens" ,
              line.par = list(col = 'black'), gg = TRUE)
 p1 + theme_classic() + geom_point(color = "black")
-
-# Forni biomass
-p2 <- visreg(m_for_fld_2, "total_biomass",
-             line.par = list(col = "black"), gg = TRUE)
-p2 + theme_classic() + geom_point(color = "black")
 
 # Lyr sediment
 p3.1 <- visreg(m_lyr_fld_1.1, "ani_den", "Animal", 
@@ -71,7 +78,7 @@ p4.2 <- ggplot(p4.1$fit, aes(ani_den, visregFit, linetype = factor(Animal), fill
   geom_point(data = p4.1$res, aes(ani_den, visregRes, color = factor(Animal)), size = 2, alpha = 0.5) + 
   scale_fill_grey(start = 0.2, end = 0.8) + 
   scale_color_manual(values = c("Darkblue","darkred")) + ggtitle("Water above the sediment") + 
-  labs(linetype = "Animal type", fill = "Animal type", color = "Animal type") + ylim(c(300,450)) +
+  labs(linetype = "Animal type", fill = "Animal type", color = "Animal type") + ylim(c(340,450)) +
   theme(plot.title = element_text(hjust = 0.5),
         legend.position = "none"); p4.2
 
@@ -80,7 +87,7 @@ p4.2 <- ggplot(p4.1$fit, aes(ani_den, visregFit, linetype = factor(Animal), fill
 p5.1 <- visreg(m_for_exp_1, "Animals", 
                plot = TRUE, overlay = TRUE, partial = TRUE)
 # Lyr
-p6.1 <- visreg(m_lyr_exp_1, "Animals", "Mixed" ,  
+p6.1 <- visreg(m_lyr_exp_2, "Animals", "Mixed" ,  
                plot = TRUE, overlay = FALSE, partial = TRUE)
 
 ### Profiles -------------------------------------------------- 
