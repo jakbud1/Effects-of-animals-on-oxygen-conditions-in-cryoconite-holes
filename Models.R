@@ -54,7 +54,6 @@ m_for_exp_1 <- glmmTMB(AUC ~ Animals,
 qqnorm(residuals(m_for_exp_1, type = "pearson")); qqline(residuals(m_for_exp_1, type = "pearson"))
 plot(residuals(m_for_exp_1) ~ fitted(m_for_exp_1))
 
-
 ### Experiment - Longyearbreen ---------------------------------------
 AUCexp_LYR <- subset(AUCexp_SED, Glacier == "Longyearbreen")
 
@@ -64,7 +63,7 @@ AUCexp_LYR$AUC <- as.numeric(as.character(AUCexp_LYR$AUC))
 m_lyr_exp_0 <- glmmTMB(AUC ~ 1, data = AUCexp_LYR); summary(m_lyr_exp_0)
 m_lyr_exp_1 <- glmmTMB(AUC ~ Mixed + Animals, 
                 data = AUCexp_LYR); summary(m_lyr_exp_1)
-m_lyr_exp_2 <- glmmTMB(AUC ~ Mixed * Animals, 
+m_lyr_exp_2 <- glmmTMB(AUC ~ Animals * Mixed, 
                        data = AUCexp_LYR); summary(m_lyr_exp_2)
 AIC(m_lyr_exp_0, m_lyr_exp_1, m_lyr_exp_2)
 

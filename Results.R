@@ -17,36 +17,32 @@ mean(subset(LYR_fld_OUT, ani_type == "tardigrada")$ani_den)
 
 mean(LYR_fld_OUT$OM)
 mean(FOR_fld_OUT$OM)
+
+mean((LYR_fld_OUT$diameter_longitudinal_cm[1:40])[-c(22,30)])
+
 ### Models outputs --------------------------------------------
 ## Field
 # Forni (density)
 summary(m_for_fld_1)
-anova(m_for_fld_0, m_for_fld_1, test = "Chisq")
 
 # Lyr sediment (density)
 summary(m_lyr_fld_1.1)
-anova(m_lyr_fld_1.0, m_lyr_fld_1.1, test = "Chisq")
 
 # Lyr water (density)
 summary(m_lyr_fld_2.1)
-anova(m_lyr_fld_2.0, m_lyr_fld_2.1, test = "Chisq")
 
 ## Experiment
 # Forni
 summary(m_for_exp_1)
-anova(m_for_exp_0, m_for_exp_1, test = "Chisq")
 
 # Lyr
 summary(m_lyr_exp_1)
-anova(m_lyr_exp_0, m_lyr_exp_1, test = "Chisq")
 
 summary(m_lyr_exp_2)
-anova(m_lyr_exp_0, m_lyr_exp_2, test = "Chisq")
-
 
 ### Single plots of model --------------------------------------
 ## Field
-# Forni counts
+# Forni densities
 p1 <- visreg(m_for_fld_1, "animal_dens" ,
              line.par = list(col = 'black'), gg = TRUE)
 p1 + theme_classic() + geom_point(color = "black")
@@ -87,8 +83,8 @@ p4.2 <- ggplot(p4.1$fit, aes(ani_den, visregFit, linetype = factor(Animal), fill
 p5.1 <- visreg(m_for_exp_1, "Animals", 
                plot = TRUE, overlay = TRUE, partial = TRUE)
 # Lyr
-p6.1 <- visreg(m_lyr_exp_2, "Animals", "Mixed" ,  
-               plot = TRUE, overlay = FALSE, partial = TRUE)
+p6.1 <- visreg(m_lyr_exp_2, "Mixed", "Animals" ,  
+               plot = TRUE, overlay = TRUE, partial = TRUE)
 
 ### Profiles -------------------------------------------------- 
 ## Field
