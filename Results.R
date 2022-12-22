@@ -20,6 +20,8 @@ mean(FOR_fld_OUT$OM)
 
 mean((LYR_fld_OUT$diameter_longitudinal_cm[1:40])[-c(22,30)])
 
+summary(lm(LYR_fld_OUT$ani_den[1:40] ~ LYR_fld_OUT$ani_den[41:80]))
+
 ### Models outputs --------------------------------------------
 ## Field
 # Forni (density)
