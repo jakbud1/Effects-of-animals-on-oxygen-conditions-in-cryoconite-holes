@@ -8,6 +8,7 @@ library(data.table)
 library(plotrix)
 library(RColorBrewer)
 library(ggpubr)
+library(car)
 
 ### Descriptive data
 ## Field
@@ -28,19 +29,24 @@ summary(lm(LYR_fld_OUT$ani_den[1:40] ~ LYR_fld_OUT$ani_den[41:80]))
 ## Field
 # Forni (density)
 summary(m_for_fld_1)
+Anova(m_for_fld_1, type = "II")
 
 # Lyr sediment (density)
 summary(m_lyr_fld_1.1)
+Anova(m_lyr_fld_1.1, type = "II")
 
 # Lyr water (density)
 summary(m_lyr_fld_2.1)
+Anova(m_lyr_fld_2.1, type = "II")
 
 ## Experiment
 # Forni
 summary(m_for_exp_1)
+Anova(m_for_exp_1, type = "II")
 
 # Lyr
 summary(m_lyr_exp_2)
+Anova(m_lyr_exp_2, type = "III")
 
 ### Rawa data ---------------------------------------------------
 ## Forni field
