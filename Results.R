@@ -40,8 +40,6 @@ summary(m_lyr_fld_2.1)
 summary(m_for_exp_1)
 
 # Lyr
-summary(m_lyr_exp_1)
-
 summary(m_lyr_exp_2)
 
 ### Rawa data ---------------------------------------------------
