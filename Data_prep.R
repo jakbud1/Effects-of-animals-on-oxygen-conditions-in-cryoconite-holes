@@ -21,6 +21,7 @@ merge_comments <- function(dataInput, dataNames){
   .GlobalEnv$newDF <- dataInput
 }
 
+
 ### Field - Forni ---------------------------------------------------
 wd <- getwd()
 setwd("Input/Forni/profile/")
