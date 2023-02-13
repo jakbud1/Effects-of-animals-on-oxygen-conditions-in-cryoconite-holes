@@ -35,10 +35,6 @@ Anova(m_for_fld_1, type = "II")
 summary(m_lyr_fld_1.1)
 Anova(m_lyr_fld_1.1, type = "II")
 
-# Lyr water (density)
-summary(m_lyr_fld_2.1)
-Anova(m_lyr_fld_2.1, type = "II")
-
 ## Experiment
 # Forni
 summary(m_for_exp_1)
