@@ -24,7 +24,7 @@ merge_comments <- function(dataInput, dataNames){
 
 ### Field - Forni ---------------------------------------------------
 wd <- getwd()
-setwd("Input/Forni/profile/")
+setwd("Input/Forni/profiles/")
 temp <- list.files(pattern = "*.xlsx")
 myfiles <- lapply(temp, read_xlsx)
 df_for_fld <- do.call(rbind.data.frame, myfiles); rm(myfiles, temp)
@@ -77,26 +77,24 @@ df_prof_for_mean$SE <- unlist(aggregate(df_mean$oxygen_concentration_ul_L ~ df_m
 colnames(df_prof_for_mean) <- c("depth", "mean_oxygen", "SE")
 
 ## Add tardigrada data
-df_tar <- read_xlsx("Input/Forni/FOR_21_Oxygen.xlsx")
-df_tar$krio_ID <- as.factor(df_tar$krio_ID)
+df_tar <- read_xlsx("Input/Forni/FOR_21_tar.xlsx")
+df_tar$cryo_ID <- as.factor(df_tar$cryo_ID)
 
 ## merge both dfs
 FOR_fld_OUT <- merge(df_tar, OUT_mean, by = "prof_ID")
-FOR_fld_OUT$tar_count <- FOR_fld_OUT$deformed_specimens + FOR_fld_OUT$accurate_specimens
 
 df_prof_for_all <- df_mean
 rm(df_for_fld, df_mean, df_tar, OUT_mean, OUT_for2)
 
 ### Field - Longyearbreen ---------------------------------------
 ## Double measurements
-LYR_fld_OUT <- readxl::read_xlsx("Input/Lyr/LYR_21_oxygen.xlsx")
+LYR_fld_OUT <- readxl::read_xlsx("Input/Lyr/LYR_21_animals.xlsx")
 
 ## Profiles
 setwd("Input/Lyr/profile/")
 temp <- list.files(pattern = "*.xlsx")
 myfiles <- lapply(temp, read_xlsx)
 df_lyr_fld <- do.call(rbind.data.frame, myfiles); rm(myfiles, temp)
-
 
 ## select variable
 df_lyr_fld <- df_lyr_fld[,c(1,2,8)]
@@ -129,8 +127,8 @@ df_prof_lyr_all <- df_mean; rm(df_mean)
 ### Experiment - Forni (Sediment)  -----------------------------------------------
 setwd(wd)
 
-FOR_OS <- lapply(excel_sheets("Input/Experiment/Tlen_FOR_OSAD.xlsx"), 
-                 read_excel, path = "Input/Experiment/Tlen_FOR_OSAD.xlsx")
+FOR_OS <- lapply(excel_sheets("Input/Experiment/FOR_exp.xlsx"), 
+                 read_excel, path = "Input/Experiment/FOR_exp.xlsx")
 FOR_OS2 <- bind_rows(FOR_OS[1:10])
 FOR_OS_NAMES <- as.data.frame(FOR_OS[13])[,3]; rm(FOR_OS)
 
@@ -148,8 +146,8 @@ rm(FOR_OS2, FOR_OS_NAMES)
 FOR_exp_SED <- newDF; rm(newDF) 
 
 ### Experiment - Longyearbreen -----------------------------------------------
-LYR_OS <- lapply(excel_sheets("Input/Experiment/Tlen_LYR_OSAD.xlsx"), 
-                 read_excel, path = "Input/Experiment/tlen_LYR_OSAD.xlsx")
+LYR_OS <- lapply(excel_sheets("Input/Experiment/LYR_exp.xlsx"), 
+                 read_excel, path = "Input/Experiment/LYR_exp.xlsx")
 LYR_OS2 <- bind_rows(LYR_OS[1:20])
 LYR_OS_NAMES <- as.data.frame(LYR_OS[23])[-1,3]; rm(LYR_OS)
 

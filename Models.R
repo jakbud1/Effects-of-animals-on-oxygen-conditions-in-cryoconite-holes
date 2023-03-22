@@ -9,17 +9,15 @@ library(plyr)
 
 ### Field - Forni ----------------------------------------------------
 # density (gaussian) 
-m_for_fld_1 <- glmmTMB(mean_oxygen ~ animal_dens + OM + (1|krio_ID),
+m_for_fld_1 <- glmmTMB(mean_oxygen ~ animal_dens + OM + (1|cryo_ID),
                 REML = TRUE, data = FOR_fld_OUT); summary(m_for_fld_1)
 plot(residuals(m_for_fld_1, type = "pearson") ~ fitted(m_for_fld_1))
 qqnorm(residuals(m_for_fld_1, type = "pearson")); qqline(residuals(m_for_fld_1, type = "pearson"))
 
 ### Field - Longyearbreen --------------------------------------------
 # sediment with ratio of animals; density (gaussian)
-df_lyr_fld_short <- read_xlsx("Input/Lyr/LYR_21_oxygen_short.xlsx")
-
 m_lyr_fld_1.1 <- glmmTMB(sed_oxygen ~ OM + ani_den * rot_to_tar_ratio, 
-                         REML = TRUE, data = df_lyr_fld_short); summary(m_lyr_fld_3.1)
+                         REML = TRUE, data = LYR_fld_OUT); summary(m_lyr_fld_1.1)
 
 plot(residuals(m_lyr_fld_1.1, type = "pearson") ~ fitted(m_lyr_fld_1.1))
 qqnorm(residuals(m_lyr_fld_1.1, type = "pearson")); qqline(residuals(m_lyr_fld_1.1, type = "pearson"))
@@ -40,13 +38,8 @@ AUCexp_LYR <- subset(AUCexp_SED, Glacier == "Longyearbreen")
 AUCexp_LYR$AUC <- as.numeric(as.character(AUCexp_LYR$AUC))
 
 # Modeling
-m_lyr_exp_1 <- glmmTMB(AUC ~ Mixed + Animals, 
-                REML = TRUE, data = AUCexp_LYR); summary(m_lyr_exp_1)
-m_lyr_exp_2 <- glmmTMB(AUC ~ Animals * Mixed, 
-                       REML = TRUE, data = AUCexp_LYR); summary(m_lyr_exp_2)
+m_lyr_exp_1 <- glmmTMB(AUC ~ Animals * Mixed, 
+                       REML = TRUE, data = AUCexp_LYR); summary(m_lyr_exp_1)
 
 qqnorm(residuals(m_lyr_exp_1, type = "pearson")); qqline(residuals(m_lyr_exp_1, type = "pearson"))
 plot(residuals(m_lyr_exp_1, type = "pearson") ~ fitted(m_lyr_exp_1))
-
-qqnorm(residuals(m_lyr_exp_2, type = "pearson")); qqline(residuals(m_lyr_exp_2, type = "pearson"))
-plot(residuals(m_lyr_exp_2, type = "pearson") ~ fitted(m_lyr_exp_2))
