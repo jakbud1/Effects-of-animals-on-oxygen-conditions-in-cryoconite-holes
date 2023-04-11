@@ -11,6 +11,10 @@ library(ggpubr)
 library(car)
 
 ### Descriptive data
+## Colinearity
+cor(FOR_fld_OUT$OM, FOR_fld_OUT$mean_oxygen)
+cor(LYR_fld_OUT$OM, LYR_fld_OUT$sed_oxygen)
+
 ## Field
 mean(FOR_fld_OUT$animal_dens)
 
@@ -44,8 +48,8 @@ summary(m_for_exp_1)
 Anova(m_for_exp_1, type = "II")
 
 # Lyr
-summary(m_lyr_exp_2)
-Anova(m_lyr_exp_2, type = "III")
+summary(m_lyr_exp_1)
+Anova(m_lyr_exp_1, type = "II")
 
 ### Raw data ---------------------------------------------------
 ## Forni field
