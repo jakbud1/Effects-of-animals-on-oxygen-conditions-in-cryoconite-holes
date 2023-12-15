@@ -124,7 +124,7 @@ colnames(df_prof_lyr_mean) <- c("depth", "mean_oxygen", "SE")
 
 df_prof_lyr_all <- df_mean; rm(df_mean)
 
-### Experiment - Forni (Sediment)  -----------------------------------------------
+### Experiment - Forni (Sediment; Oxygen)  -------------------------------------
 setwd(wd)
 
 FOR_OS <- lapply(excel_sheets("Input/Experiment/FOR_exp.xlsx"), 
@@ -145,47 +145,25 @@ merge_comments(FOR_OS2, FOR_OS_NAMES)
 rm(FOR_OS2, FOR_OS_NAMES)
 FOR_exp_SED <- newDF; rm(newDF) 
 
-### Experiment - Longyearbreen -----------------------------------------------
-LYR_OS <- lapply(excel_sheets("Input/Experiment/LYR_exp.xlsx"), 
-                 read_excel, path = "Input/Experiment/LYR_exp.xlsx")
-LYR_OS2 <- bind_rows(LYR_OS[1:20])
-LYR_OS_NAMES <- as.data.frame(LYR_OS[23])[-1,3]; rm(LYR_OS)
-
-LYR_OS2 <- LYR_OS2[,c(1,2,7,8,6)]
-LYR_OS2$glacier <- rep("Longyearbreen", length(LYR_OS2$`Profile name`))
-
-LYR_OS2$abv_name <- as.character(NA)
-LYR_OS2$mixed <- as.character(NA)
-LYR_OS2$animals <- as.character(NA)
-LYR_OS2$beakerNum <- as.character(NA)
-
-merge_comments(LYR_OS2, LYR_OS_NAMES); rm(LYR_OS2, LYR_OS_NAMES)
-LYR_exp_SED <- newDF; rm(newDF)
-
-# sediment dfs 
-exp_SED <- rbind(FOR_exp_SED, LYR_exp_SED); rm(FOR_exp_SED, LYR_exp_SED)
-exp_SED <- exp_SED[,c(2,4,6:10)]
-names(exp_SED) <- c("Depth", "Oxygen", "Glacier", "Name", "Mixed", "Animals", "BeakerNum")
+## select variables
+exp_SED <- FOR_exp_SED[,c(2,4,6,7,9,10)]
+names(exp_SED) <- c("Depth", "Oxygen", "Glacier", "Name", "Animals", "BeakerNum")
 
 ## Aggregate data by double measurements
-# sediment
 exp_SED <- aggregate(exp_SED$Oxygen ~ exp_SED$Depth + exp_SED$Glacier + 
-                              exp_SED$BeakerNum + exp_SED$Animals + exp_SED$Mixed + 
-                              exp_SED$Name, 
-                            FUN = mean)
-colnames(exp_SED) <- c("Depth","Glacier","BeakerNum","Animals","Mixed","Name","Oxygen")
+                       exp_SED$BeakerNum + exp_SED$Animals +  
+                       exp_SED$Name, 
+                     FUN = mean)
+colnames(exp_SED) <- c("Depth","Glacier","BeakerNum","Animals","Name","Oxygen")
 
 exp_SED$Animals <- as.factor(exp_SED$Animals)
 levels(exp_SED$Animals) <- c("Without animals", "Animals")
 
-exp_SED$Mixed <- as.factor(exp_SED$Mixed)
-levels(exp_SED$Mixed) <- c("Not mixed", "Mixed")
-
-### Experiment - calculate the calculus for each profile ------------------------
-for (e in 1:length(exp_SED$Name)) {
-  if (exp_SED[e, 7] < 0) {
-    exp_SED[e, 7] <- 0
-  }
+## calculate the calculus for each profile 
+for (e in 1:length(exp_SED$Name)){
+    if (exp_SED[e, 6] < 0) {
+      exp_SED[e, 6] <- 0
+    }
 }; rm(e)
 
 # change concentration to amount per particular depth (0.001 cm3 = 1L); Such approach let us only to compare oxygen amount within the experiments, because we used the same beakers and amount of sediment.
@@ -197,8 +175,8 @@ exp_SED$Oxygen_amount <- (v_pom * exp_SED$Oxygen)/1000; rm(v_pom)
 
 exp_SEDL <- split(exp_SED, exp_SED$Name)
 Int_exp_SED <- lapply(exp_SEDL, 
-                             function(z) integrate(approxfun(z[,1],z[,8]), 
-                                                   range(z[,1])[1], range(z[,1])[2]))
+                      function(z) integrate(approxfun(z[,1],z[,7]), 
+                                            range(z[,1])[1], range(z[,1])[2]))
 
 # extracting the data from the list
 AUCl <- numeric(length(exp_SEDL))
@@ -212,17 +190,39 @@ AUCexp_SED <- cbind(AUCl, names(Int_exp_SED))
 colnames(AUCexp_SED) <- c("AUC","Name")
 AUCexp_SED <- as.data.frame(AUCexp_SED); rm(exp_SEDL, Int_exp_SED, AUCl)
 
-# Merging the other variables with new df
+# Merging the other variables with new df <- tutaj jest cos nie tak. 
 for (z in 1:length(exp_SED$Depth)) {
   for (i in 1:length(AUCexp_SED$AUC)) {
-    if (AUCexp_SED[i,2] == exp_SED[z,6]) {
+    if (AUCexp_SED[i,2] == exp_SED[z,5]) {
       AUCexp_SED$Glacier[i] <- exp_SED[z,2] 
       AUCexp_SED$BeakerNum[i] <- exp_SED[z,3]
       AUCexp_SED$Animals[i] <- as.character(exp_SED[z,4])
-      AUCexp_SED$Mixed[i] <- as.character(exp_SED[z,5])
     }
   } 
 }; rm(i, z)
 
 ## change structures of variables 
 AUCexp_SED$AUC <- as.factor(AUCexp_SED$AUC)
+
+AUCexp_FOR <- AUCexp_SED; rm(AUCexp_SED)
+
+### Experiment - Forni, Longyear, Ebenferner (Sediment; OM)  -------------------
+df_exp <- read_xlsx("Input/Exp_OM.xlsx")
+df_exp <- df_exp[-c(1:3),]
+
+## Remover records where animals haven't survived until the end of the experiment but also drop the non-mixed for Forni (experiment fail before end)
+df_exp <- subset(df_exp, is.na(df_exp$Remove) == TRUE)[,-10]
+
+## Split the dfs
+df_exp_FOR <- subset(df_exp, Glacier == "FOR") 
+df_exp_STE <- subset(df_exp, Glacier == "EBE")
+df_exp_LYR <- subset(df_exp, Glacier == "LYR")
+
+
+### Tlen: 
+# - Teren (FOR i LYR)
+# - experyment (FOR)
+
+### OM:
+# - Teren (FOR i LYR)
+# - experyment (FOR, EBE, LYR)
