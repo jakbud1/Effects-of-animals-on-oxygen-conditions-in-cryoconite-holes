@@ -86,10 +86,13 @@ FOR_fld_OUT <- merge(df_tar, OUT_mean, by = "prof_ID")
 df_prof_for_all <- df_mean
 rm(df_for_fld, df_mean, df_tar, OUT_mean, OUT_for2)
 
+write.csv(FOR_fld_OUT, "Output_data/Forni_field.csv")
+
 ### Field - Longyearbreen ---------------------------------------
 ## Double measurements
 LYR_fld_OUT <- readxl::read_xlsx("Input/Lyr/LYR_21_animals.xlsx")
 
+write.csv(LYR_fld_OUT, "Output_data/Longyear_field.csv")
 ## Profiles
 setwd("Input/Lyr/profile/")
 temp <- list.files(pattern = "*.xlsx")
